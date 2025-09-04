@@ -1,6 +1,6 @@
 from google.protobuf.timestamp_pb2 import Timestamp
-from aeroalpes.pb2py import vuelos_pb2
-from aeroalpes.pb2py import vuelos_pb2_grpc
+from .pb2py import vuelos_pb2
+from .pb2py import vuelos_pb2_grpc
 
 def dict_a_proto_locacion(dict_locacion):
     return vuelos_pb2.Locacion(codigo=dict_locacion.get('codigo'), nombre=dict_locacion.get('nombre'))
