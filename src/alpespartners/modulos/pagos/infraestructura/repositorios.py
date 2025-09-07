@@ -8,7 +8,7 @@ from .dto import Pago as PagoDTO
 from .mapeadores import MapeadorPago
 from uuid import UUID
 
-class RepositorioPagosSQLite(RepositorioPagos):
+class RepositorioPagosPostgreSQL(RepositorioPagos):
     def __init__(self):
         self._fabrica_pagos: FabricaPagos = FabricaPagos()
 

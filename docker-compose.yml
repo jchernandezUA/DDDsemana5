@@ -4,6 +4,28 @@ networks:
   sidecar:
     driver: bridge
 services:
+# PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: alpespartners-postgres
+    profiles: ["alpespartners", "monolito", "database"]
+    environment:
+      POSTGRES_DB: alpespartners
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - pulsar
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 # Start zookeeper
   zookeeper:
     image: apachepulsar/pulsar:latest
@@ -87,6 +109,7 @@ services:
       zookeeper:
         condition: service_healthy
       bookie:
+        condition: service_started
     ports:
       - "6650:6650"
       - "8080:8080"
@@ -106,10 +129,16 @@ services:
       SidecarDiscover: "false"
     depends_on:
       - broker
+      - postgres
     environment:
       - ALPESPARTNERS_ADDRESS=alpespartners
       - PULSAR_ADDRESS=broker
       - BROKER_HOST=broker
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=alpespartners
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
     ports:
       - "5010:5010"
 
@@ -129,3 +158,6 @@ services:
       - pulsar
     ports:
       - "5678:5678"
+
+volumes:
+  postgres_data:
