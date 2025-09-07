@@ -37,7 +37,7 @@ class MapeadorPago(RepMap):
         fecha_creacion = entidad.fecha_creacion.strftime(self._FORMATO_FECHA)
         fecha_actualizacion = entidad.fecha_actualizacion.strftime(self._FORMATO_FECHA)
         _id = str(entidad.id)
-        _id_socio = str(entidad.id_socio.valor)
+        _id_socio = str(entidad.id_socio)
         
         return PagoDTO(
             id=_id,

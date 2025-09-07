@@ -5,7 +5,7 @@ import json
 import logging
 from threading import Thread
 
-from aeropartners.consumidor import obtener_suscripcion_a_topico
+from alpespartners.consumidor import obtener_suscripcion_a_topico
 
 logging.basicConfig(level=logging.INFO)
 CLIENTES_CONECTADOS = set()

@@ -8,9 +8,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 def registrar_handlers():
     import modulos.pagos.aplicacion
+    import modulos.notificaciones.aplicacion
+
 
 def importar_modelos_alchemy():
     import modulos.pagos.infraestructura.dto
+    import modulos.notificaciones.infraestructura.dto
+
 
 def comenzar_consumidor():
     """
@@ -21,9 +25,13 @@ def comenzar_consumidor():
 
     import threading
     import modulos.pagos.infraestructura.consumidores as pagos
+    import modulos.notificaciones.infraestructura.consumidores as notificaciones
+
 
     # Suscripción a eventos
     threading.Thread(target=pagos.suscribirse_a_eventos).start()
+    threading.Thread(target=notificaciones.suscribirse_a_eventos_pagos).start()
+
 
     # Suscripción a comandos
     threading.Thread(target=pagos.suscribirse_a_comandos).start()
@@ -54,10 +62,13 @@ def create_app(configuracion={}):
 
      # Importa Blueprints
     from . import pagos
+    from . import notificaciones
 
 
     # Registro de Blueprints
     app.register_blueprint(pagos.bp)
+    app.register_blueprint(notificaciones.bp)
+
 
     @app.route("/spec")
     def spec():
@@ -69,5 +80,6 @@ def create_app(configuracion={}):
     @app.route("/health")
     def health():
         return {"status": "up"}
+    
 
     return app

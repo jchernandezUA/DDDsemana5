@@ -80,26 +80,25 @@ services:
       - managedLedgerDefaultAckQuorum=1
       - advertisedAddress=broker
       #Si se realiza una ejecución manual del microservicio desde el IDE, se debe usar esta línea:
-      #- advertisedListeners=external:pulsar://127.0.0.1:6650
+      - advertisedListeners=external:pulsar://127.0.0.1:6650
       #Si se realiza una ejecución completa de todo (incluido el microservicio) con docker compose, se debería usar esta línea en lugar de la anterior para que se comunique con el contenedor broker dentro de una misma ejecución
-      - advertisedListeners=external:pulsar://broker:6650
+      #- advertisedListeners=external:pulsar://broker:6650
     depends_on:
       zookeeper:
         condition: service_healthy
       bookie:
-        condition: service_started
     ports:
       - "6650:6650"
       - "8080:8080"
     command: bash -c "bin/apply-config-from-env.py conf/broker.conf
       &&  exec bin/pulsar broker"
   
-  # Servicios de aeropartners
-  aeropartners:
-    container_name: aeropartners
-    hostname: aeropartners
-    image: aeropartners/flask
-    profiles: ["aeropartners", "monolito"]
+  # Servicios de alpespartners
+  alpespartners:
+    container_name: alpespartners
+    hostname: alpespartners
+    image: alpespartners/flask
+    profiles: ["alpespartners", "monolito"]
     networks:
       #- sidecar
       - pulsar
@@ -108,51 +107,23 @@ services:
     depends_on:
       - broker
     environment:
-      - AEROALPES_ADDRESS=aeropartners
+      - ALPESPARTNERS_ADDRESS=alpespartners
       - PULSAR_ADDRESS=broker
       - BROKER_HOST=broker
     ports:
       - "5010:5010"
-  # adaptador:
-  #   image: "aeroalpes/adaptador"
-  #   profiles: ["aeroalpes", "monolito"]
-  #   container_name: adaptador
-  #   hostname: adaptador
-  #   depends_on:
-  #     - aeroalpes
-  #   networks:
-  #     - sidecar
-  #   environment:
-  #     - AEROALPES_ADDRESS=aeroalpes
-  #     - PULSAR_ADDRESS=broker
-  #   ports:
-  #     - "50051:50051"
-  
-  # # Servicios de Notificación
-  # notificacion:
-  #   container_name: notificacion
-  #   hostname: notificacion
-  #   image: aeroalpes/notificacion 
-  #   profiles: ["aeroalpes", "notificacion"]
-  #   depends_on:
-  #     - aeroalpes
-  #     - broker
-  #   environment:
-  #     - AEROALPES_ADDRESS=aeroalpes
-  #     - PULSAR_ADDRESS=broker
-  #   networks:
-  #     - pulsar
+
  # Servicio UI
   ui:
     container_name: ui
     hostname: ui
-    image: aeropartners/ui 
-    profiles: ["aeropartners", "ui"]
+    image: alpespartners/ui 
+    profiles: ["alpespartners", "ui"]
     depends_on:
-      - aeropartners
+      - alpespartners
       - broker
     environment:
-      - AEROALPES_ADDRESS=aeropartners
+      - ALPESPARTNERS_ADDRESS=alpespartners
       - PULSAR_ADDRESS=broker
     networks:
       - pulsar
