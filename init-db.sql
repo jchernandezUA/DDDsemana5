@@ -8,6 +8,7 @@
 -- For now, we'll let SQLAlchemy handle table creation through db.create_all()
 
 -- Grant all privileges to the postgres user (default setup)
+CREATE DATABASE IF NOT EXISTS alpespartners;
 GRANT ALL PRIVILEGES ON DATABASE alpespartners TO postgres;
 
 -- Create any additional schemas if needed

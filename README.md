@@ -1,316 +1,174 @@
-# Tutorial 5 - CQRS y manejo de eventos
+# Alpespartners
 
-## Base de Datos PostgreSQL
+Repositorio del sistema Alpespartners, una plataforma modular para la gestión de pagos, notificaciones y UI, basada en arquitectura hexagonal y comunicación asíncrona mediante eventos.
 
-Este proyecto ha sido migrado de SQLite a PostgreSQL para mayor robustez y escalabilidad. La base de datos se ejecuta en un contenedor Docker y se incluye automáticamente en el docker-compose.
+Este proyecto está diseñado para ser escalable y desacoplado, permitiendo la integración de nuevos servicios y adaptadores fácilmente.
 
-### Configuración de la Base de Datos
-
-- **Host**: postgres (dentro de Docker) o localhost (desarrollo local)
-- **Puerto**: 5432
-- **Base de datos**: alpespartners
-- **Usuario**: postgres
-- **Contraseña**: postgres
-
-### Variables de Entorno
-
-Las siguientes variables de entorno pueden ser configuradas:
-
-- `DB_HOST`: Host de la base de datos (default: localhost)
-- `DB_PORT`: Puerto de la base de datos (default: 5432)
-- `DB_NAME`: Nombre de la base de datos (default: alpespartners)
-- `DB_USER`: Usuario de la base de datos (default: postgres)
-- `DB_PASSWORD`: Contraseña de la base de datos (default: postgres)
-
-### Servicios Docker
-
-El docker-compose ahora incluye:
-- **postgres**: Servicio de base de datos PostgreSQL con persistencia de datos
-- **alpespartners**: Servicio principal configurado para conectarse a PostgreSQL
-
-Para ejecutar solo la base de datos:
-```bash
-docker-compose --profile database up
-```
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&repo=MISW4406/tutorial-5-cqrs-eventos)
-
-Repositorio con código base para el uso de un sistema usando el patrón CQRS y usando eventos de dominio e integración para la comunicación asíncrona entre componentes internos parte del mismo contexto acotado y sistemas externos.
-
-Este repositorio está basado en el repositorio de sidecars visto en el tutorial 4 del curso. Por tal motivo, puede usar ese mismo repositorio para entender algunos detalles que este README no cubre.
 
 ## Arquitectura
 
-<img width="3228" height="387" alt="5" src="https://github.com/user-attachments/assets/673a55e4-4d0b-47f7-baad-42a85d89b64d" />
+La arquitectura de Alpespartners se basa en microservicios y módulos independientes:
 
-## Estructura del proyecto
+- **API**: Exposición de endpoints para pagos y notificaciones.
+- **Notificaciones**: Servicio dedicado para el manejo y envío de notificaciones.
+- **UI**: Interfaz gráfica y servidor websocket para interacción en tiempo real.
 
-Este repositorio sigue en general la misma estructura del repositorio de origen. Sin embargo, hay un par de adiciones importante mencionar:
+La comunicación entre servicios se realiza mediante eventos y mensajes, permitiendo escalabilidad y resiliencia.
 
-- El directorio **src** ahora cuenta con un nuevo directorio llamado **notificaciones**, el cual representa un servicio de mensajería que recibe eventos de integración propagados del sistema de AeroAlpes, por medio de un broker de eventos.
-- El directorio **src** ahora también cuenta cuenta con un nuevo directorio llamado **ui**, el cual representa nuestra interfaz gráfica la cual puede recibir por medio de un BFF desarrollado en Python usando websockets, las respuestas de nuestros comandos de forma asíncrona.
-- Nuestro proyecto de AeroAlpes ha cambiado de forma considerable. Los siguientes son los cambios relevantes en cada módulo:
-   - **api**: En este módulo se modificó el API de `vuelos.py` el cual cuenta con dos nuevos endpoints: `/reserva-commando` y `/reserva-query`, los cuales por detrás de escenas usan un patrón CQRS como la base de su comunicación.
-   - __modulos/../aplicacion__: Este módulo ahora considera los sub-módulos: `queries` y `comandos`. En dichos directorios pdrá ver como se desacopló las diferentes operaciones lectura y escritura. Vea en el módulo `vuelos` los archivos `obtener_reserva.py` y `crear_reserva.py` para ver como se logra dicho desacoplamiento.
-   - **modulos/../aplicacion/handlers.py**: Estos son los handlers de aplicación que se encargan de oir y reaccionar a eventos. Si consulta el módulo de clientes podra ver que tenemos handlers para oir y reaccionar a los eventos de dominio para poder continuar con una transacción. En el modulo de vuelos encontramos handlers para eventos de integración los cuales pueden ser disparados desde la capa de infraestructura, la cual está consumiendo eventos y comandos del broker de eventos.
-   - **modulos/../dominio/eventos.py**: Este archivo contiene todos los eventos de dominio que son disparados cuando una actividad de dominio es ejecutada de forma correcta.
-   - **modulos/../infraestructura/consumidores.py**: Este archivo cuenta con toda la lógica en términos de infrastructura para consumir los eventos y comandos que provienen del broker de eventos. Desarrollado de una forma funcional.
-   - **modulos/../infraestructura/despachadores.py**: Este archivo cuenta con toda la lógica en terminos de infrastructura para publicar los eventos y comandos de integración en el broker de eventos. Desarrollado de manera OOP.
-   - **modulos/../infraestructura/schema**: En este directorio encontramos la definición de los eventos y comandos de integración. Puede ver que se usa un formato popular en la comunidad de desarrollo de software open source, en donde los directorios/módulos nos dan un indicio de las versiones `/schema/v1/...`. De esta manera podemos estar tranquilos con versiones incrementales y menores, pero listos cuando tengamos que hacer un cambio grande.
-   - **seedwork/aplicacion/comandos.py**: Definición general de los comandos, handlers e interface del despachador.
-   - **seedwork/infraestructura/queries.py**: Definición general de los queries, handlers e interface del despachador.
-   - **seedwork/infraestructura/uow.py**: La Unidad de Trabajo (UoW) mantiene una lista de objetos afectados por una transacción de negocio y coordina los cambios de escritura. Este objeto nos va ser de gran importancia, pues cuando comenzamos a usar eventos de dominio e interactuar con otros módulos, debemos ser capaces de garantizar consistencia entre los diferentes objetos y partes de nuestro sistema.
+## Estructura completa del proyecto
 
-## AeroAlpes
-
-### Ejecutar Aplicación
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-flask --app src/aeroalpes/api run
+A continuación se presenta el desglose detallado de la estructura del proyecto, explicando el propósito de cada carpeta y archivo, y su relación con la arquitectura hexagonal, DDD y la arquitectura basada en eventos:
 
 ```
-
-Siempre puede ejecutarlo en modo DEBUG:
-
-```bash
-flask --app src/aeroalpes/api --debug run
-
+Raíz del proyecto
+├── aeropartners.Dockerfile         # Dockerfile para construir la imagen del servicio API
+├── docker-compose.yml              # Orquestación de servicios y dependencias (DB, brokers, etc)
+├── estructura_proyecto.txt         # Descripción de la estructura del proyecto
+├── init-db.sql                     # Script de inicialización de la base de datos
+├── notificacion-requirements.txt   # Dependencias Python para el servicio de notificaciones
+├── notificacion.Dockerfile         # Dockerfile para el servicio de notificaciones
+├── pyproject.toml                  # Configuración de proyecto Python (dependencias, metadata, etc)
+├── README.md                       # Documentación general del proyecto
+├── requirements.txt                # Dependencias globales Python
+├── ui-requirements.txt             # Dependencias Python para el servicio UI
+├── ui.Dockerfile                   # Dockerfile para el servicio UI
+├── src/
+│   ├── alpespartners/
+│   │   ├── api/                    # Endpoints REST, entrada principal de la aplicación
+│   │   │   ├── notificaciones.py   # Controlador REST para notificaciones
+│   │   │   ├── pagos.py            # Controlador REST para pagos
+│   │   ├── config/                 # Configuración general y acceso a la base de datos
+│   │   │   ├── db.py               # Configura la conexión a la base de datos
+│   │   │   ├── uow.py              # Implementa el patrón Unit of Work
+│   │   ├── modulos/
+│   │   │   ├── notificaciones/     # Lógica de negocio para notificaciones
+│   │   │   │   ├── aplicacion/     # Casos de uso, comandos, servicios de aplicación
+│   │   │   │   ├── dominio/        # Entidades, agregados, eventos de dominio, reglas de negocio
+│   │   │   │   └── infraestructura/# Adaptadores para persistencia y brokers de eventos
+│   │   │   ├── pagos/              # Lógica de negocio para pagos
+│   │   │   │   ├── __init__.py     # Inicializa el módulo
+│   │   │   │   ├── aplicacion/     # Casos de uso, comandos, servicios de aplicación
+│   │   │   │   ├── dominio/        # Entidades, agregados, eventos de dominio, reglas de negocio
+│   │   │   │   └── infraestructura/# Adaptadores para persistencia y brokers de eventos
+│   │   ├── seedwork/               # Componentes compartidos, utilidades y patrones comunes
+│   │   │   ├── __init__.py         # Inicializa el módulo seedwork
+│   │   │   ├── aplicacion/         # Comandos, DTOs, servicios y handlers genéricos
+│   │   │   ├── dominio/            # Entidades base, eventos, excepciones, fábricas, mixins, objetos de valor, reglas, repositorios y servicios compartidos
+│   │   │   ├── infraestructura/    # Adaptadores genéricos para persistencia y mensajería
+│   │   │   └── presentacion/       # Adaptadores para exponer la funcionalidad (API, CLI, UI)
+│   ├── ui/                         # Interfaz gráfica web y servidor websocket
+│   │   ├── __init__.py             # Inicializa el módulo UI
+│   │   ├── main.py                 # Servidor websocket principal
+│   │   ├── alpespartners/          # Lógica específica de la UI
+│   │   │   ├── __init__.py         # Inicializa el submódulo
+│   │   │   ├── consumidor.py       # Consume eventos y actualiza la UI
+│   │   │   ├── publicador.py       # Publica eventos desde la UI
+│   │   │   ├── utils.py            # Funciones auxiliares para la UI y eventos
+│   │   │   └── vistas/             # Componentes gráficos y vistas de la interfaz web
+|
 ```
 
-### Ejecutar pruebas
+### Relación con la arquitectura hexagonal, DDD y eventos
+
+- **Hexagonal**: Cada módulo (pagos, notificaciones, UI) está dividido en capas de dominio, aplicación e infraestructura. Los adaptadores (infraestructura/presentación) permiten la integración con sistemas externos y la exposición de APIs, siguiendo el patrón de puertos y adaptadores.
+- **DDD**: El dominio de cada módulo define entidades, agregados, objetos de valor y eventos, encapsulando la lógica central y las reglas de negocio. La capa de aplicación orquesta casos de uso y comandos, mientras que la infraestructura implementa la persistencia y la integración con brokers de eventos.
+- **Eventos**: La comunicación entre servicios se realiza mediante eventos y mensajes, permitiendo la integración desacoplada, la escalabilidad y la resiliencia. Los módulos publican y consumen eventos a través de brokers, y la UI se actualiza en tiempo real mediante websockets.
+
+Esta estructura facilita la extensibilidad, el desacoplamiento y la mantenibilidad del sistema, permitiendo agregar nuevos servicios y adaptadores sin afectar el núcleo de negocio.
+
+
+
+
+
+## Ejecución de servicios
+
+### API Alpespartners
 
 ```bash
-coverage run -m pytest
-
+flask --app src/alpespartners/api run --port=5000
 ```
 
-### Ver reporte de covertura
-
-```bash
-coverage report
-
-```
-
-### Crear imagen Docker
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker build . -f aeroalpes.Dockerfile -t aeroalpes/flask
-
-```
-
-### Ejecutar contenedora (sin compose)
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker run -p 5000:5000 aeroalpes/flask
-
-```
-
-## Sidecar/Adaptador
-
-### Instalar librerías
-
-En el mundo real es probable que ambos proyectos estén en repositorios separados, pero por motivos pedagógicos y de simpleza,
-estamos dejando ambos proyectos en un mismo repositorio. Sin embargo, usted puede encontrar un archivo `sidecar-requirements.txt`,
-el cual puede usar para instalar las dependencias de Python para el servidor y cliente gRPC.
-
-```bash
-pip install -r sidecar-requirements.txt
-
-```
-
-### Ejecutar Servidor
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-python src/sidecar/main.py 
-
-```
-
-### Ejecutar Cliente
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-python src/sidecar/cliente.py 
-
-```
-
-### Compilación gRPC
-
-Desde el directorio `src/sidecar` ejecute el siguiente comando.
-
-```bash
-python -m grpc_tools.protoc -Iprotos --python_out=./pb2py --pyi_out=./pb2py --grpc_python_out=./pb2py protos/vuelos.proto
-
-```
-
-### Crear imagen Docker
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker build . -f adaptador.Dockerfile -t aeroalpes/adaptador
-
-```
-
-### Ejecutar contenedora (sin compose)
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker run -p 50051:50051 aeroalpes/adaptador
-
-```
-
-## Microservicio Notificaciones
-
-### Ejecutar Aplicación
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-python src/notificaciones/main.py
-
-```
-
-### Crear imagen Docker
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker build . -f notificacion.Dockerfile -t aeroalpes/notificacion
-
-```
-
-### Ejecutar contenedora (sin compose)
-
-Desde el directorio principal ejecute el siguiente comando.
-
-```bash
-docker run aeroalpes/notificacion
-
-```
-
-## UI Websocket Server
-
-### Ejecutar Aplicación
-
-Desde el directorio principal ejecute el siguiente comando.
+### UI Websocket Server
 
 ```bash
 python src/ui/main.py
-
 ```
 
 ### Crear imagen Docker
 
-Desde el directorio principal ejecute el siguiente comando.
-
 ```bash
-docker build . -f ui.Dockerfile -t aeroalpes/ui
-
+docker build . -f notificacion.Dockerfile -t alpespartners/notificacion
+docker build . -f ui.Dockerfile -t alpespartners/ui
 ```
 
-### Ejecutar contenedora (sin compose)
-
-Desde el directorio principal ejecute el siguiente comando.
+### Ejecutar contenedores (sin compose)
 
 ```bash
-docker run aeroalpes/ui
-
+docker run alpespartners/notificacion
+docker run alpespartners/ui
 ```
+
+
 
 ## Docker-compose
 
-Para desplegar toda la arquitectura en un solo comando, usamos `docker-compose`. Para ello, desde el directorio principal, ejecute el siguiente comando:
+Para desplegar toda la arquitectura de Alpespartners en un solo comando, usa `docker-compose` desde el directorio principal:
 
 ```bash
-docker-compose up
-
+docker-compose --profile alpespartners --profile pulsar up
 ```
 
-Si desea detener el ambiente ejecute:
+Para detener los servicios:
 
 ```bash
 docker-compose stop
-
 ```
 
-En caso de querer desplegar dicha topología en el background puede usar el parametro `-d`.
+Para ejecutar en segundo plano:
 
 ```bash
 docker-compose up -d
-
 ```
+
 
 ## Comandos útiles
 
-### Listar contenedoras en ejecución
-
+### Listar contenedores en ejecución
 ```bash
 docker ps
-
 ```
 
-### Listar todas las contenedoras
-
+### Listar todas los contenedores
 ```bash
 docker ps -a
-
 ```
 
-### Parar contenedora
-
+### Parar contenedor
 ```bash
-docker stop <id_contenedora>
-
+docker stop <id_contenedor>
 ```
 
-### Eliminar contenedora
-
+### Eliminar contenedor
 ```bash
-docker rm <id_contenedora>
-
+docker rm <id_contenedor>
 ```
 
 ### Listar imágenes
-
 ```bash
 docker images
-
 ```
 
 ### Eliminar imágenes
-
 ```bash
-docker images rm <id_imagen>
-
+docker rmi <id_imagen>
 ```
 
-### Acceder a una contendora
-
+### Acceder a un contenedor
 ```bash
-docker exec -it <id_contenedora> sh
-
+docker exec -it <id_contenedor> sh
 ```
 
-### Kill proceso que esta usando un puerto
-
+### Kill proceso que está usando un puerto
 ```bash
 fuser -k <puerto>/tcp
-
-```
-
-### Correr docker-compose usando profiles
-
-```bash
-docker-compose --profile <pulsar|aeroalpes|ui|notificacion> up
-
 ```
