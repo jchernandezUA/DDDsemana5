@@ -1,0 +1,61 @@
+from datetime import datetime
+import uuid
+from alpespartners.modulos.eventos.dominio.entidades import Evento
+from alpespartners.modulos.eventos.dominio.objetos_valor import TipoEvento
+from seedwork.aplicacion.dto import Mapeador as AppMap
+from seedwork.dominio.repositorios import Mapeador as RepMap
+
+# Importamos las Entidades 'Pago' y 'Transaccion' desde el dominio
+from modulos.pagos.dominio.entidades import Pago, Transaccion
+# Importamos los DTOs de la capa de aplicación
+from .dto import EventoDTO
+
+
+class MapeadorEventoDTOJson(AppMap):
+    def externo_a_dto(self, externo: dict) -> EventoDTO:
+        evento_dto = EventoDTO(
+            id=externo.get('id'),
+            tipo=externo.get('tipo'),
+            id_socio=externo.get('id_socio'),
+            id_programa=externo.get('id_programa'),
+            monto=externo.get('monto')
+        )
+        return evento_dto
+
+    def dto_a_externo(self, dto: EventoDTO) -> dict:
+        return dto.__dict__
+
+class MapeadorEvento(RepMap):
+    _FORMATO_FECHA = '%Y-%m-%dT%H:%M:%SZ'
+
+    def obtener_tipo(self) -> type:
+        return Evento.__class__
+
+    def entidad_a_dto(self, entidad: Evento) -> EventoDTO:
+        _id = str(entidad.id)
+        _id_socio = str(entidad.id_socio)
+        _id_programa = str(entidad.id_programa)
+        
+        fecha_creacion = entidad.fecha_creacion.strftime(self._FORMATO_FECHA)
+        fecha_procesamiento = entidad.fecha_procesamiento.strftime(self._FORMATO_FECHA) if entidad.fecha_procesamiento else None
+
+        return EventoDTO(
+            id=_id,
+            id_socio=_id_socio,
+            id_programa=_id_programa,
+            tipo=entidad.tipo.valor,
+            monto=entidad.monto,
+            fecha_creacion=fecha_creacion,
+            fecha_procesamiento=fecha_procesamiento
+        )
+
+    def dto_a_entidad(self, dto: EventoDTO) -> Evento:
+        evento = Evento()
+        evento.id_socio = uuid.UUID(dto.id_socio)
+        evento.id_programa = uuid.UUID(dto.id_programa)
+        evento.tipo = TipoEvento(dto.tipo)
+        evento.monto = dto.monto
+        evento.fecha_creacion = datetime.strptime(dto.fecha_creacion, self._FORMATO_FECHA)
+        evento.fecha_procesamiento = datetime.strptime(dto.fecha_procesamiento, self._FORMATO_FECHA)
+
+        return evento
