@@ -1,10 +1,11 @@
 # Propósito: Define el comando CrearPago y su handler, que orquesta la 
 # creación de un nuevo pago.
 
-from alpespartners.modulos.eventos.aplicacion.dto import EventoDTO
-from alpespartners.modulos.eventos.dominio.entidades import Evento
-from alpespartners.modulos.eventos.dominio.repositorios import RepositorioEventos
-from alpespartners.modulos.eventos.infraestructura.mapeadores import MapeadorEvento
+from datetime import datetime
+from modulos.eventos.aplicacion.dto import EventoDTO
+from modulos.eventos.dominio.entidades import Evento
+from modulos.eventos.dominio.repositorios import RepositorioEventos
+from modulos.eventos.infraestructura.mapeadores import MapeadorEvento
 from seedwork.aplicacion.comandos import Comando
 from .base import EventoBaseHandler
 from dataclasses import dataclass, field
@@ -24,12 +25,17 @@ class CrearEvento(Comando):
 class CrearEventoHandler(EventoBaseHandler):
 
     def handle(self, comando: CrearEvento):
+        fecha_actual = datetime.utcnow()
+        fecha_formateada = fecha_actual.strftime('%Y-%m-%dT%H:%M:%SZ')
+        
         evento_dto = EventoDTO(
             id=comando.id,
             tipo=comando.tipo,
             id_socio=comando.id_socio,
             id_programa=comando.id_programa,
-            monto=comando.monto
+            monto=comando.monto,
+            fecha_creacion=fecha_formateada,
+            fecha_procesamiento=None
         )
 
         evento: Evento = self.fabrica_eventos.crear_objeto(evento_dto, MapeadorEvento())

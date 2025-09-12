@@ -4,12 +4,11 @@ Entidades del dominio de Eventos
 from __future__ import annotations
 from dataclasses import dataclass, field
 from seedwork.dominio.entidades import AgregacionRaiz
-from seedwork.dominio.objetos_valor import ObjetoValor
-from .objetos_valor import TipoEvento, EstadoEvento, MetadatosEvento
-from .eventos import EventoCreado, EventoProcesado, EventoFallido
+from .objetos_valor import TipoEvento
+from .eventos import EventoCreado
 from datetime import datetime
 from uuid import UUID, uuid4
-from typing import List, Optional
+from typing import Optional
 
 
 @dataclass
@@ -17,7 +16,6 @@ class Evento(AgregacionRaiz):
     """
     Entidad principal que representa un evento en el sistema
     """
-    id: UUID = field(default_factory=uuid4)
     tipo: TipoEvento = field(default=None)
     id_socio: UUID = field(default=None)
     id_programa: UUID = field(default=None)
@@ -25,11 +23,18 @@ class Evento(AgregacionRaiz):
     fecha_creacion: datetime = field(default_factory=datetime.utcnow)
     fecha_procesamiento: Optional[datetime] = field(default=None)
 
-    def __post_init__(self):
-        if not self.tipo:
-            raise ValueError("El tipo de evento es obligatorio")
-        
-        # Agregar evento de dominio cuando se crea
+    def crear_evento(self, evento: Evento):
+        """
+        Método para iniciar la creación del agregado.
+        Dispara el evento de dominio inicial.
+        """
+        self.tipo = evento.tipo
+        self.id_socio = evento.id_socio
+        self.id_programa = evento.id_programa
+        self.monto = evento.monto
+        self.fecha_creacion = evento.fecha_creacion
+        self.fecha_procesamiento = evento.fecha_procesamiento
+
         self.agregar_evento(EventoCreado(
             evento_id=self.id,
             tipo=self.tipo.valor,

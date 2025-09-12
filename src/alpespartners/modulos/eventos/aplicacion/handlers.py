@@ -1,7 +1,7 @@
 """
 Handlers de aplicación para el módulo de Eventos
 """
-from alpespartners.modulos.eventos.infraestructura.despachadores import Despachador
+from modulos.eventos.infraestructura.despachadores import Despachador
 from seedwork.aplicacion.handlers import Handler
 
 class HandlerEventoIntegracion(Handler):

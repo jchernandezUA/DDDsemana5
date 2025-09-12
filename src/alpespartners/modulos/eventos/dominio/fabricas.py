@@ -3,10 +3,10 @@ Fábricas del dominio de Eventos
 """
 from dataclasses import dataclass
 
-from alpespartners.modulos.eventos.dominio.excepciones import TipoObjetoNoExisteEnDominioEventosExcepcion
-from alpespartners.modulos.eventos.dominio.reglas import MontoDebeSerPositivo
-from alpespartners.seedwork.dominio.entidades import Entidad
-from alpespartners.seedwork.dominio.repositorios import Mapeador
+from modulos.eventos.dominio.excepciones import TipoObjetoNoExisteEnDominioEventosExcepcion
+from modulos.eventos.dominio.reglas import MontoDebeSerPositivo
+from seedwork.dominio.entidades import Entidad
+from seedwork.dominio.repositorios import Mapeador
 from .entidades import Evento
 from seedwork.dominio.fabricas import Fabrica
 
@@ -19,7 +19,7 @@ class _FabricaEvento(Fabrica):
             evento: Evento = mapeador.dto_a_entidad(obj)
 
             # Validación de reglas de negocio
-            self.validar_regla(MontoDebeSerPositivo(evento.monto_total))
+            self.validar_regla(MontoDebeSerPositivo(evento.monto))
 
             return evento
 

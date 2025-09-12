@@ -1,24 +1,27 @@
 from datetime import datetime
 import uuid
-from alpespartners.modulos.eventos.dominio.entidades import Evento
-from alpespartners.modulos.eventos.dominio.objetos_valor import TipoEvento
+from modulos.eventos.dominio.entidades import Evento
+from modulos.eventos.dominio.objetos_valor import TipoEvento
 from seedwork.aplicacion.dto import Mapeador as AppMap
 from seedwork.dominio.repositorios import Mapeador as RepMap
 
-# Importamos las Entidades 'Pago' y 'Transaccion' desde el dominio
-from modulos.pagos.dominio.entidades import Pago, Transaccion
 # Importamos los DTOs de la capa de aplicación
 from .dto import EventoDTO
 
 
 class MapeadorEventoDTOJson(AppMap):
+    _FORMATO_FECHA = '%Y-%m-%dT%H:%M:%SZ'
+
     def externo_a_dto(self, externo: dict) -> EventoDTO:
+        fecha_actual = datetime.now().strftime(self._FORMATO_FECHA)
         evento_dto = EventoDTO(
             id=externo.get('id'),
             tipo=externo.get('tipo'),
             id_socio=externo.get('id_socio'),
             id_programa=externo.get('id_programa'),
-            monto=externo.get('monto')
+            monto=externo.get('monto'),
+            fecha_creacion=externo.get('fecha_creacion', fecha_actual),
+            fecha_procesamiento=externo.get('fecha_procesamiento', fecha_actual)
         )
         return evento_dto
 
@@ -41,9 +44,9 @@ class MapeadorEvento(RepMap):
 
         return EventoDTO(
             id=_id,
+            tipo=entidad.tipo.valor,
             id_socio=_id_socio,
             id_programa=_id_programa,
-            tipo=entidad.tipo.valor,
             monto=entidad.monto,
             fecha_creacion=fecha_creacion,
             fecha_procesamiento=fecha_procesamiento

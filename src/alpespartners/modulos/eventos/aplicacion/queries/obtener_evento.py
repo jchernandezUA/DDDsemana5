@@ -1,7 +1,7 @@
 # Propósito: Define la consulta ObtenerPago y su handler para recuperar un pago por su ID.
 
-from alpespartners.modulos.eventos.dominio.repositorios import RepositorioEventos
-from alpespartners.modulos.eventos.infraestructura.mapeadores import MapeadorEvento
+from modulos.eventos.dominio.repositorios import RepositorioEventos
+from modulos.eventos.infraestructura.mapeadores import MapeadorEvento
 from seedwork.aplicacion.queries import Query, QueryResultado
 from seedwork.aplicacion.queries import ejecutar_query as query
 from dataclasses import dataclass

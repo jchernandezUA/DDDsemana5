@@ -4,15 +4,13 @@
 """Reglas de negocio del dominio de Pagos"""
 
 from seedwork.dominio.reglas import ReglaNegocio
-from .objetos_valor import Monto
-from .entidades import Transaccion
 
 class MontoDebeSerPositivo(ReglaNegocio):
-    monto: Monto
+    monto: float
 
-    def __init__(self, monto: Monto, mensaje='El monto total del pago debe ser un valor positivo'):
+    def __init__(self, monto: float, mensaje='El monto total del pago debe ser un valor positivo'):
         super().__init__(mensaje)
         self.monto = monto
 
     def es_valido(self) -> bool:
-        return self.monto and self.monto.es_positivo()
+        return self.monto > 0
