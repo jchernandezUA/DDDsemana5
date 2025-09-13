@@ -1,5 +1,6 @@
 from datetime import datetime
 import uuid
+from typing import List, Dict, Any
 from modulos.eventos.dominio.entidades import Evento
 from modulos.eventos.dominio.objetos_valor import TipoEvento
 from seedwork.aplicacion.dto import Mapeador as AppMap
@@ -25,6 +26,39 @@ class MapeadorEventoDTOJson(AppMap):
 
     def dto_a_externo(self, dto: EventoDTO) -> dict:
         return dto.__dict__
+
+    def lista_dto_a_externo(self, lista_dtos: List[EventoDTO], id_socio: str = None) -> Dict[str, Any]:
+        """
+        Convierte una lista de EventoDTO a la estructura externa específica
+        """
+        if not lista_dtos:
+            return {
+                "idSocio": id_socio or "",
+                "eventos": []
+            }
+        
+        # Si no se proporciona id_socio, tomar el del primer evento
+        if not id_socio and lista_dtos:
+            id_socio = lista_dtos[0].id_socio
+        
+        eventos_externos = []
+        for dto in lista_dtos:            
+            
+            # Mapear campos a la estructura externa
+            evento_externo = {
+                "idEvento": dto.id if hasattr(dto, 'id') else str(uuid.uuid4()),
+                "idReferido": dto.id_referido,
+                "monto": float(dto.monto) if dto.monto else 0.0,
+                "fechaEvento": dto.fecha_evento,
+                "estado": dto.estado if hasattr(dto, 'estado') else "pendiente",
+                "ganancia": dto.ganancia if hasattr(dto, 'ganancia') else 0.0
+            }
+            eventos_externos.append(evento_externo)
+        
+        return {
+            "idSocio": id_socio,
+            "eventos": eventos_externos
+        }
 
 class MapeadorEvento(RepMap):
     _FORMATO_FECHA = '%Y-%m-%dT%H:%M:%SZ'

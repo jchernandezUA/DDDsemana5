@@ -41,3 +41,20 @@ class RepositorioEventosPostgreSQL(RepositorioEventos):
     def eliminar(self, evento_id: UUID):
         # Implementar lógica de eliminación si es necesario
         raise NotImplementedError
+    
+    def obtener_por_id_socio(self, id_socio: UUID) -> Evento:
+        # Consultar eventos del socio usando SQLAlchemy
+        eventos_entity = db.session.query(EventoEntity).filter_by(id_socio=str(id_socio)).all()
+        
+        # Si necesitas transformar a DTOs usando la fábrica:
+        eventos = []
+        mapeador = MapeadorEvento()
+        
+        for evento_entity in eventos_entity:
+            # Convertir de EventoEntity a Evento (entidad de dominio) usando la fábrica
+            evento_dominio = self.fabrica_eventos.crear_objeto(evento_entity, mapeador)
+            
+            eventos.append(evento_dominio)
+
+        # Retornar la lista de eventos
+        return eventos

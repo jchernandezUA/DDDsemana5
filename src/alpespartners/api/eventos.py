@@ -6,7 +6,7 @@ from seedwork.dominio.excepciones import ExcepcionDominio
 # Importaciones específicas del módulo de Eventos
 from modulos.eventos.aplicacion.mapeadores import MapeadorEventoDTOJson
 from modulos.eventos.aplicacion.comandos.crear_evento import CrearEvento
-from modulos.eventos.aplicacion.queries.obtener_evento import ObtenerEvento
+from modulos.eventos.aplicacion.queries.obtener_eventos_socio import ObtenerEventosSocio
 from seedwork.aplicacion.comandos import ejecutar_commando
 from seedwork.aplicacion.queries import ejecutar_query
 
@@ -34,13 +34,13 @@ def crear_evento():
     except ExcepcionDominio as e:
         return Response(json.dumps(dict(error=str(e))), status=400, mimetype='application/json')
 
-@bp.route('/<id>', methods=('GET',))
-def dar_pago_usando_query(id=None):
-    if id:
-        query_resultado = ejecutar_query(ObtenerEvento(id))
+@bp.route('/<id_socio>', methods=('GET',))
+def dar_eventos_socio_usando_query(id_socio=None):
+    if id_socio:
+        query_resultado = ejecutar_query(ObtenerEventosSocio(id_socio))
         map_evento = MapeadorEventoDTOJson()
 
-        return map_evento.dto_a_externo(query_resultado.resultado)
+        return map_evento.lista_dto_a_externo(query_resultado.resultado)
     else:
         # Esto podría devolver una lista de todos los eventos o un error
         return Response(json.dumps(dict(error="Se requiere un ID de evento")), status=400, mimetype='application/json')

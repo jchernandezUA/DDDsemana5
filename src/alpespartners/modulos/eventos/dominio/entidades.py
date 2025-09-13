@@ -7,7 +7,7 @@ from seedwork.dominio.entidades import AgregacionRaiz
 from .objetos_valor import TipoEvento
 from .eventos import EventoRegistrado
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 from typing import Optional
 
 
