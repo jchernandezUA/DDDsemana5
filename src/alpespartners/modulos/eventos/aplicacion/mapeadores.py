@@ -15,13 +15,11 @@ class MapeadorEventoDTOJson(AppMap):
     def externo_a_dto(self, externo: dict) -> EventoDTO:
         fecha_actual = datetime.now().strftime(self._FORMATO_FECHA)
         evento_dto = EventoDTO(
-            id=externo.get('id'),
-            tipo=externo.get('tipo'),
-            id_socio=externo.get('id_socio'),
-            id_programa=externo.get('id_programa'),
+            tipo=externo.get('tipoEvento'),
+            id_socio=externo.get('idSocio'),
+            id_referido=externo.get('idReferido'),
             monto=externo.get('monto'),
-            fecha_creacion=externo.get('fecha_creacion', fecha_actual),
-            fecha_procesamiento=externo.get('fecha_procesamiento', fecha_actual)
+            fecha_evento=externo.get('fechaEvento', fecha_actual)
         )
         return evento_dto
 

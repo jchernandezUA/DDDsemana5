@@ -15,8 +15,9 @@ class EventoEntity(db.Model):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_socio = Column(UUID(as_uuid=True), nullable=False)
-    id_programa = Column(UUID(as_uuid=True), nullable=False)
+    id_referido = Column(UUID(as_uuid=True), nullable=True)
     tipo = Column(String(100), nullable=False)
+    estado = Column(String(50), nullable=False, default='pendiente')
     monto = Column(db.Float, nullable=False)
     fecha_creacion = Column(DateTime, nullable=False, index=True)
-    fecha_procesamiento = Column(DateTime, nullable=True)   
+    fecha_evento = Column(DateTime, nullable=False)   

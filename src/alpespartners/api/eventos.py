@@ -21,11 +21,11 @@ def crear_evento():
         evento_dto = map_evento.externo_a_dto(evento_dict)
 
         comando = CrearEvento(
-            id=evento_dto.id,
             tipo=evento_dto.tipo,
             id_socio=evento_dto.id_socio,
-            id_programa=evento_dto.id_programa,
-            monto=evento_dto.monto
+            id_referido=evento_dto.id_referido,
+            monto=evento_dto.monto,
+            fecha_evento=evento_dto.fecha_evento
         )
         
         ejecutar_commando(comando)

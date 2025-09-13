@@ -91,7 +91,7 @@ def limpiar_eventos_antiguos(dias: int = 30) -> int:
 
 # Exportar clases principales para facilitar importación
 from .dominio.entidades import Evento
-from .dominio.objetos_valor import TipoEvento, EstadoEvento, MetadatosEvento
+from .dominio.objetos_valor import TipoEvento
 from .dominio.fabricas import FabricaEventos
 from .aplicacion.comandos import CrearEvento, ProcesarEvento
 from .aplicacion.queries import ObtenerEvento, ObtenerEventos
@@ -99,8 +99,6 @@ from .aplicacion.queries import ObtenerEvento, ObtenerEventos
 __all__ = [
     'Evento',
     'TipoEvento', 
-    'EstadoEvento',
-    'MetadatosEvento',
     'FabricaEventos',
     'CrearEvento',
     'ProcesarEvento',

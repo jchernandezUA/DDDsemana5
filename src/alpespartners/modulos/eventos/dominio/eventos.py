@@ -9,13 +9,17 @@ from uuid import UUID
 
 
 @dataclass
-class EventoCreado(EventoDominio):
+class EventoRegistrado(EventoDominio):
     """
     Evento que se dispara cuando se crea un nuevo evento en el sistema
     """
     evento_id: UUID = field(default=None)
-    tipo: str = field(default="")
-    fecha_creacion: datetime = field(default_factory=datetime.now)
+    tipo_evento: str = field(default="")
+    id_referido: UUID = field(default=None)
+    id_socio: UUID = field(default=None)
+    monto: float = field(default=0.0)
+    estado: str = field(default="pendiente")
+    fecha_evento: datetime = field(default_factory=datetime.now)
 
     def nombre_evento(self) -> str:
-        return "eventos.evento_creado"
+        return "eventos.eventos-tracking"

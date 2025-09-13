@@ -10,10 +10,8 @@ from uuid import UUID
 @dataclass(frozen=True)
 class EventoDTO:
     """DTO para transferencia de datos de eventos"""
-    id: str
     tipo: str
     id_socio: UUID
-    id_programa: UUID
+    id_referido: UUID
     monto: float
-    fecha_creacion: str
-    fecha_procesamiento: Optional[str] = None
+    fecha_evento: str

@@ -7,11 +7,11 @@ from seedwork.aplicacion.handlers import Handler
 class HandlerEventoIntegracion(Handler):
 
     @staticmethod
-    def handle_evento_creado(evento):
+    def handle_evento_registrado(evento):
         print('===================================================================')
-        print(f'¡HANDLER: Evento de dominio EventoCreado recibido! ID: {evento.id}')
+        print(f'¡HANDLER: Evento de dominio EventoRegistrado recibido! ID: {evento.evento_id}')
         print('===================================================================')
         # =======================================
         despachador = Despachador()
         # Publicamos el evento en el tópico 'eventos'
-        despachador.publicar_evento(evento, 'eventos')
+        despachador.publicar_evento(evento, 'eventos-tracking')

@@ -15,27 +15,22 @@ from seedwork.infraestructura.uow import UnidadTrabajoPuerto
 
 @dataclass
 class CrearEvento(Comando):
-    id: str
     tipo: str
     id_socio: str
-    id_programa: str
+    id_referido: str
     monto: float
-
+    fecha_evento: str
 
 class CrearEventoHandler(EventoBaseHandler):
 
     def handle(self, comando: CrearEvento):
-        fecha_actual = datetime.utcnow()
-        fecha_formateada = fecha_actual.strftime('%Y-%m-%dT%H:%M:%SZ')
         
         evento_dto = EventoDTO(
-            id=comando.id,
             tipo=comando.tipo,
             id_socio=comando.id_socio,
-            id_programa=comando.id_programa,
+            id_referido=comando.id_referido,
             monto=comando.monto,
-            fecha_creacion=fecha_formateada,
-            fecha_procesamiento=None
+            fecha_evento=comando.fecha_evento
         )
 
         evento: Evento = self.fabrica_eventos.crear_objeto(evento_dto, MapeadorEvento())
